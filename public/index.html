@@ -76,6 +76,21 @@
 				Ultraviolet is highly sophisticated proxy used for evading internet
 				censorship.
 			</p>
+			<button onclick="launchWebsite()">Launch Website in about:blank</button>
+
+<script>
+    function launchWebsite() {
+        var newWindow = window.open('about:blank', '_blank');
+
+        // Paste your entire HTML code exactly between the two backticks below:
+        var htmlContent = `
+            `;
+
+        newWindow.document.open();
+        newWindow.document.write(htmlContent);
+        newWindow.document.close();
+    }
+</script>
 		</div>
 
 		<form id="uv-form" class="flex-center">
