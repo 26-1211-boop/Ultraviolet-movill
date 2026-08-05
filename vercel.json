@@ -1,0 +1,6 @@
+{
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/uv/service/:path*", "destination": "/index.html" }
+  ]
+}
