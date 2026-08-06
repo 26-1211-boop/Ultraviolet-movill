@@ -1,99 +1,89 @@
 <!doctype html>
 <html lang="ko">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
-        <title>Ultraviolet Proxy</title>
-        <link rel="shortcut icon" content="favicon.ico" />
-        <link rel="stylesheet" href="index.css" />
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+    <title>Ultraviolet Proxy</title>
+    <link rel="shortcut icon" content="favicon.ico" />
+    <link rel="stylesheet" href="index.css" />
 
-        
-        <script src="/uv/uv.bundle.js"></script>
-        <script src="/uv/uv.config.js"></script>
-    </head>
+    <!-- UV 스크립트 순서 보장 -->
+    <script src="/uv/uv.bundle.js"></script>
+    <script src="/uv/uv.config.js"></script>
+  </head>
 
-    <body>
+  <body>
+    <div>
+      <div title="Ultraviolet Logo" class="flex-center logo-wrapper header-center">
+        <img class="logo" src="uv.png" alt="Ultraviolet" />
+        <h1>Ultraviolet | TN</h1>
+      </div>
+      <div class="flex-center desc left-margin">
+        <p>Ultraviolet is highly sophisticated proxy used for evading internet censorship.</p>
+      </div>
+
+      <form id="uv-form" class="flex-center">
+        <input id="uv-address" type="text" placeholder="Search the web freely" />
+      </form>
+      <div class="desc left-margin" style="text-align: center; margin-top: 10px;">
+        <p id="uv-error" style="color: #ff6b6b; font-weight: bold;"></p>
+      </div>
+    </div>
+
+    <footer>
+      <div>
         <div>
-            <div title="Ultraviolet Logo" class="flex-center logo-wrapper header-center">
-                <img class="logo" src="uv.png" alt="Ultraviolet" />
-                <h1>Ultraviolet | TN</h1>
-            </div>
-            <div class="flex-center desc left-margin">
-                <p>Ultraviolet is highly sophisticated proxy used for evading internet censorship.</p>
-            </div>
-
-            <form id="uv-form" class="flex-center">
-                <input id="uv-address" type="text" placeholder="Search the web freely" />
-            </form>
-            <div class="desc left-margin" style="text-align: center; margin-top: 10px;">
-                <p id="uv-error" style="color: #ff6b6b; font-weight: bold;"></p>
-            </div>
+          <a href="https://github.com/titaniumnetwork-dev">TitaniumNetwork</a>
+          <a href="https://discord.gg/unblock">Discord</a>
+          <a href="https://github.com/tomphttp">TompHTTP</a>
+          <a href="https://github.com/titaniumnetwork-dev/Ultraviolet-App">GitHub</a>
+          <a href="credits.html">Credits</a>
         </div>
+        <div>
+          <span>Ultraviolet &copy; TN 2023</span>
+        </div>
+      </div>
+    </footer>
 
-        <footer>
-            <div>
-                <div>
-                    <a href="https://github.com/titaniumnetwork-dev">TitaniumNetwork</a>
-                    <a href="https://discord.gg/unblock">Discord</a>
-                    <a href="https://github.com/tomphttp">TompHTTP</a>
-                    <a href="https://github.com/titaniumnetwork-dev/Ultraviolet-App">GitHub</a>
-                    <a href="credits.html">Credits</a>
-                </div>
-                <div>
-                    <span>Ultraviolet &copy; TN 2023</span>
-                </div>
-            </div>
-        </footer>
+    <script>
+      async function registerSW() {
+        if (!("serviceWorker" in navigator)) {
+          throw new Error("이 브라우저는 Service Worker를 지원하지 않습니다.");
+        }
+        return await navigator.serviceWorker.register("/sw.js", {
+          scope: __uv$config.prefix
+        });
+      }
 
-        <script>
-        
-            async function registerSW() {
-                if (!("serviceWorker" in navigator)) {
-                    throw new Error("이 브라우저는 Service Worker를 지원하지 않습니다.");
-                }
-                return await navigator.serviceWorker.register("/sw.js", {
-                    scope: __uv$config.prefix
-                });
-            }
+      const form = document.getElementById("uv-form");
+      const address = document.getElementById("uv-address");
+      const errorText = document.getElementById("uv-error");
 
-         
-            registerSW().catch(err => {
-                console.error("SW 등록 실패:", err);
-            });
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        errorText.innerText = "연결 준비 중...";
 
-            const form = document.getElementById("uv-form");
-            const address = document.getElementById("uv-address");
-            const errorText = document.getElementById("uv-error");
+        let url = address.value.trim();
+        if (!url) return;
 
-   
-            form.addEventListener("submit", async (event) => {
-                event.preventDefault(); 
-                errorText.innerText = "연결 준비 중...";
+        if (!url.startsWith("http://") && !url.startsWith("https://")) {
+          if (url.includes(".") && !url.includes(" ")) {
+            url = "https://" + url;
+          } else {
+            url = "https://www.google.com/search?q=" + encodeURIComponent(url);
+          }
+        }
 
-                let url = address.value.trim();
-                if (!url) return;
+        try {
+          await registerSW();
+          await navigator.serviceWorker.ready;
 
-              
-                if (!url.startsWith("http://") && !url.startsWith("https://")) {
-                    if (url.includes(".") && !url.includes(" ")) {
-                        url = "https://" + url;
-                    } else {
-                        url = "https://www.google.com/search?q=" + encodeURIComponent(url);
-                    }
-                }
-
-                try {
-                   
-                    await registerSW();
-                    await navigator.serviceWorker.ready;
-
-                
-                    window.location.href = __uv$config.prefix + __uv$config.encodeUrl(url);
-                } catch (err) {
-                    console.error("이동 오류:", err);
-                    errorText.innerText = "연결 오류 발생: " + err.message;
-                }
-            });
-        </script>
-    </body>
+          window.location.href = __uv$config.prefix + __uv$config.encodeUrl(url);
+        } catch (err) {
+          console.error("이동 오류:", err);
+          errorText.innerText = "연결 오류 발생: " + err.message;
+        }
+      });
+    </script>
+  </body>
 </html>
