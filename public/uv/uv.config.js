@@ -1,29 +1,29 @@
-self.__uv$config = {
-    prefix: '/uv/service/',
-    bare: 'https://bare.benrogo.net/',
-    encodeUrl: function(url) {
-        if (!url) return url;
-        return encodeURIComponent(
-            url
-                .toString()
-                .split('')
-                .map((char, ind) => (ind % 2 ? String.fromCharCode(char.charCodeAt(0) ^ 2) : char))
-                .join('')
-        );
-    },
-    decodeUrl: function(url) {
-        if (!url) return url;
-        const [input, ...query] = url.split('?');
-        return (
-            decodeURIComponent(input)
-                .split('')
-                .map((char, ind) => (ind % 2 ? String.fromCharCode(char.charCodeAt(0) ^ 2) : char))
-                .join('') + (query.length ? '?' + query.join('?') : '')
-        );
-    },
-    handler: '/uv/uv.handler.js',
-    client: '/uv/uv.client.js',
-    bundle: '/uv/uv.bundle.js',
-    config: '/uv/uv.config.js',
-    sw: '/uv/uv.sw.js',
-};
+/**
+ * Ultraviolet Service Worker & BareMux Registration
+ */
+
+async function registerSW() {
+    if (!('serviceWorker' in navigator)) {
+        throw new Error('Service Worker를 지원하지 않는 브라우저입니다.');
+    }
+
+    
+    await navigator.serviceWorker.register('/sw.js', {
+        scope: __uv$config.prefix
+    });
+
+
+    if (window.BareMux) {
+        const connection = new BareMux.BareMuxConnection('/baremux/worker.js');
+        
+        
+        await connection.setTransport('/baremod/index.mjs', [
+            'https://bare.benrogo.net/'
+        ]);
+    }
+}
+
+
+registerSW().catch((error) => {
+    console.error('Service Worker 등록 중 오류 발생:', error);
+});
