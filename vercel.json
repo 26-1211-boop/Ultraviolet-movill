@@ -1,6 +1,17 @@
 {
-  "cleanUrls": true,
+  "headers": [
+    {
+      "source": "/uv/uv.sw.js",
+      "headers": [
+        {
+          "key": "Service-Worker-Allowed",
+          "value": "/"
+        }
+      ]
+    }
+  ],
   "rewrites": [
-    { "source": "/uv/service/:path*", "destination": "/index.html" }
+    { "source": "/uv/service/:path*", "destination": "/index.html" },
+    { "source": "/service/:path*", "destination": "/index.html" }
   ]
 }
