@@ -5,12 +5,7 @@ importScripts('https://cdn.jsdelivr.net/npm/@titaniumnetwork-dev/ultraviolet@2.0
 const uv = new UVServiceWorker();
 
 self.addEventListener('fetch', (event) => {
-    event.respondWith(
-        (async () => {
-            if (uv.route(event)) {
-                return await uv.fetch(event);
-            }
-            return await fetch(event.request);
-        })()
-    );
+    if (event.request.url.startsWith(location.origin + __uv$config.prefix)) {
+        event.respondWith(uv.fetch(event));
+    }
 });
