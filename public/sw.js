@@ -1,9 +1,16 @@
-importScripts('/uv/uv.bundle.js');
-importScripts('/uv/uv.config.js');
-importScripts('/uv/uv.sw.js');
+importScripts('https://cdn.jsdelivr.net/npm/@titaniumnetwork-dev/ultraviolet@2.0.0/dist/uv.bundle.js');
+importScripts('./uv/uv.config.js');
+importScripts('https://cdn.jsdelivr.net/npm/@titaniumnetwork-dev/ultraviolet@2.0.0/dist/uv.sw.js');
 
-const sw = new UVServiceWorker();
+const uv = new UVServiceWorker();
 
 self.addEventListener('fetch', (event) => {
-    event.respondWith(sw.fetch(event));
+    event.respondWith(
+        (async () => {
+            if (uv.route(event)) {
+                return await uv.fetch(event);
+            }
+            return await fetch(event.request);
+        })()
+    );
 });
